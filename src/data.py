@@ -2,6 +2,7 @@ import pandas as pd
 from pathlib import Path
 import json
 import numpy as np
+import re
 
 mod_path = Path(__file__).parent
 relative_path = '../data/replay_list_all.json'
@@ -40,7 +41,7 @@ col_renamer = {
     "player2_info.battle_input_type" : "p2_input",
     "player2_info.league_point" : "p2_lp", 
     "player2_info.master_rating" : "p2_mr",
-    "player2_info.title_data.title_data_val" : "m2_title", 
+    "player2_info.title_data.title_data_val" : "p2_title", 
     "player2_info.main_circle.circle_id" : "p2_circle_id",
     "player2_info.main_circle.circle_name" : "p2_circle_name"
     }
@@ -58,9 +59,24 @@ replay_data_reduced['p2_won_first_round'] = replay_data_reduced['p2_round_result
 replay_data_reduced['p1_win'] = np.where(replay_data_reduced['p1_round_results'].apply(sum) >= 2, True, False)
 replay_data_reduced['p2_win'] = np.where(replay_data_reduced['p2_round_results'].apply(sum) >= 2, True, False)
 
+player_is_p1_df = replay_data_reduced[replay_data_reduced['p1_id'] == 3672435840]
+player_is_p2_df = replay_data_reduced[replay_data_reduced['p2_id'] == 3672435840]
 
+def label_side(row):
+   if row['p1_id'] == 3672435840:
+      return 1
+   return 2
 
+replay_data_reduced['player_side'] = replay_data_reduced.apply(label_side, axis=1)
 
+p1_df = replay_data_reduced[replay_data_reduced['player_side'] == 1]
+p2_df = replay_data_reduced[replay_data_reduced['player_side'] == 2]
 
+p1_df.rename(columns=lambda x: re.sub('p1_','player_',x), inplace=True)
+p1_df.rename(columns=lambda x: re.sub('p2_','opponent_',x), inplace=True)
 
-print(replay_data_reduced['p1_win'])
+p2_df.rename(columns=lambda x: re.sub('p2_','player_',x), inplace=True)
+p2_df.rename(columns=lambda x: re.sub('p1_','opponent_',x), inplace=True)
+
+player_df = pd.concat([p1_df, p2_df], axis=0)
+print(player_df)

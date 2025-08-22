@@ -79,4 +79,10 @@ p2_df.rename(columns=lambda x: re.sub('p2_','player_',x), inplace=True)
 p2_df.rename(columns=lambda x: re.sub('p1_','opponent_',x), inplace=True)
 
 player_df = pd.concat([p1_df, p2_df], axis=0)
-print(player_df)
+player_id = player_df['player_id'][0]
+
+mod_path = Path(__file__).parent
+csv_path = '../data/recent_results'+str(player_id)+'.csv'
+full_csv_path = (mod_path / csv_path).resolve()
+
+player_df.to_csv(full_csv_path)

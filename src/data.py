@@ -16,6 +16,7 @@ replay_data = pd.json_normalize(data)
 col_renamer = {
     "replay_id" : "replay_id",
     "battle_version" : "version",
+    "uploaded_at":"upload_datetime",
     "replay_battle_type_name" : "battle_type",
     "player1_info.player.fighter_id" : "p1_name", 
     "player1_info.player.platform_name" : "p1_platform", 
@@ -78,9 +79,11 @@ p1_df.rename(columns=lambda x: re.sub('p2_','opponent_',x), inplace=True)
 p2_df.rename(columns=lambda x: re.sub('p2_','player_',x), inplace=True)
 p2_df.rename(columns=lambda x: re.sub('p1_','opponent_',x), inplace=True)
 
-player_df = pd.concat([p1_df, p2_df], axis=0)
-player_id = player_df['player_id'][0]
 
+player_df = pd.concat([p1_df, p2_df], axis=0)
+player_df['upload_datetime'] = pd.to_datetime(player_df['upload_datetime'], unit='s') # unix to dttm
+
+player_id = player_df['player_id'][0]
 mod_path = Path(__file__).parent
 csv_path = '../data/recent_results'+str(player_id)+'.csv'
 full_csv_path = (mod_path / csv_path).resolve()

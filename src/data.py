@@ -85,4 +85,4 @@ mod_path = Path(__file__).parent
 csv_path = '../data/recent_results'+str(player_id)+'.csv'
 full_csv_path = (mod_path / csv_path).resolve()
 
-player_df.to_csv(full_csv_path)
+player_df.to_csv(full_csv_path, index=False)
